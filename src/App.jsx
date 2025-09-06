@@ -63,6 +63,7 @@ function App() {
       window.mermaid.initialize({
         startOnLoad: false,
         theme: 'default',
+        securityLevel: 'loose',
         themeVariables: {
           primaryColor: '#667eea',
           primaryTextColor: '#2d3748',
@@ -72,25 +73,28 @@ function App() {
           tertiaryColor: '#e2e8f0'
         }
       })
-
+      
       // 渲染所有Mermaid图表
       const renderMermaidCharts = async () => {
         const mermaidElements = document.querySelectorAll('.mermaid')
-        mermaidElements.forEach(async (element, index) => {
+        for (let i = 0; i < mermaidElements.length; i++) {
+          const element = mermaidElements[i]
           const graphDefinition = element.textContent.trim()
-          if (graphDefinition) {
+          if (graphDefinition && !element.hasAttribute('data-processed')) {
             try {
-              const { svg } = await window.mermaid.render(`mermaid-${index}`, graphDefinition)
+              element.setAttribute('data-processed', 'true')
+              const { svg } = await window.mermaid.render(`mermaid-${Date.now()}-${i}`, graphDefinition)
               element.innerHTML = svg
             } catch (error) {
               console.error('Mermaid rendering error:', error)
+              element.innerHTML = `<div style="color: red; padding: 20px; border: 1px solid red; border-radius: 5px;">图表渲染失败: ${error.message}</div>`
             }
           }
-        })
+        }
       }
-
+      
       // 延迟渲染以确保DOM已加载
-      setTimeout(renderMermaidCharts, 1000)
+      setTimeout(renderMermaidCharts, 1500)
     }
 
     // 初始化 MathJax
@@ -112,7 +116,7 @@ function App() {
       card.addEventListener('mouseenter', function() {
         this.style.transform = 'translateY(-5px) scale(1.02)'
       })
-
+      
       card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0) scale(1)'
       })
@@ -131,7 +135,7 @@ function App() {
         e.preventDefault()
         toggleTheme()
       }
-
+      
       // 按 T 键回到顶部
       if (e.key === 't' || e.key === 'T') {
         scrollToTop()
@@ -270,7 +274,7 @@ function App() {
       <section id="architecture" className="section">
         <div className="container">
           <h2 className="section-title">技术架构</h2>
-
+          
           <div className="diagram-container fade-in">
             <h4>OML技术架构分层图</h4>
             <div className="mermaid">
@@ -388,7 +392,7 @@ function App() {
       <section id="flow" className="section">
         <div className="container">
           <h2 className="section-title">核心流程</h2>
-
+          
           <div className="diagram-container fade-in">
             <h4>OMLize过程示意图</h4>
             <div className="mermaid">
@@ -476,7 +480,7 @@ function App() {
       <section id="modules" className="section">
         <div className="container">
           <h2 className="section-title">模块拆解</h2>
-
+          
           <div className="diagram-container fade-in">
             <h4>OML模型内部模块结构</h4>
             <div className="mermaid">
